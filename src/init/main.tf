@@ -1,8 +1,7 @@
 terraform {
   required_version = "~> 1.5.0"
 
-  # TODO Uncomment once the backend S3 bucket is created and upload the state file.
-  #backend "s3" {}
+  backend "local" {}
 
   required_providers {
     aws = {
@@ -60,8 +59,8 @@ resource "aws_s3_bucket_versioning" "terraform_states" {
 }
 
 # create a DynamoDB table for locking the state file
-resource "aws_dynamodb_table" "dynamodb-terraform-state-lock" {
-  name           = var.dynamodb_table
+resource "aws_dynamodb_table" "dynamodb_terraform_state_lock" {
+  name           = "terraform-lock"
   hash_key       = "LockID"
   read_capacity  = 4
   write_capacity = 4

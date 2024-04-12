@@ -1,5 +1,3 @@
-dynamodb_table = "terraform-att-eservices-lock"
-environment = "Dev"
 aws_region  = "eu-south-1"
 tags = {
   "CreatedBy"   = "Terraform"
