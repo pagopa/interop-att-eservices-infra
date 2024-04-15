@@ -56,7 +56,7 @@ variable "aurora_rds_cluster_min_capacity" {
 variable "aurora_rds_cluster_max_capacity" {
   description = "Aurora serverless cluster max capacity"
   type        = number
-  default     = 4
+  default     = 2
 }
 
 variable "helm_aws_load_balancer_version" {
