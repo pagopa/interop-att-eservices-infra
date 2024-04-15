@@ -16,3 +16,13 @@ output "aurora_postgresql_db_name" {
   description = "Aurora Postgresql schema name"
   value       = module.aurora_postgresql_v2.cluster_database_name
 }
+
+#output "load_balancer_host" {
+#  description = "DNS name of load balancer"
+#  value       = data.aws_lb.load_balancer.dns_name
+#}
+
+output "att_eservices_cluster_name" {
+  description = "Cluster name"
+  value       = module.eks.cluster_name
+}
