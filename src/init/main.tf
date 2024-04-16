@@ -114,7 +114,10 @@ resource "aws_iam_role" "githubiac" {
         Action = "sts:AssumeRoleWithWebIdentity",
         Condition = {
           StringLike = {
-            "token.actions.githubusercontent.com:sub" : "repo:${var.github_repository}:*"
+            "token.actions.githubusercontent.com:sub" : [
+              "repo:${var.github_code_repository}:*",
+              "repo:${var.github_infra_repository}:*"
+            ]
           },
           "ForAllValues:StringEquals" = {
             "token.actions.githubusercontent.com:iss" : "https://token.actions.githubusercontent.com",

@@ -20,6 +20,10 @@ permissions:
   id-token: write   # This is required for requesting the JWT
   contents: read    # This is required for actions/checkout
 
+env:
+  AWS_REGION: 'eu-south-1'
+  IAM_ROLE: 'arn:aws:iam::248862543363:role/GitHubActionIACRole'
+
 jobs:
   terraform:
     strategy:
@@ -39,7 +43,9 @@ jobs:
           AWS_REGION: eu-south-1
         uses: aws-actions/configure-aws-credentials@67fbcbb121271f7775d2e7715933280b06314838
         with:
-          role-to-assume: ${{ secrets.IAM_ROLE }}
+          # role-to-assume: ${{ secrets.IAM_ROLE }}
+          # aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ env.IAM_ROLE }}
           aws-region: ${{ env.AWS_REGION }}
       
       - name: Read terraform version 
@@ -59,9 +65,11 @@ jobs:
       - name: Terraform Init
         id: init
         run: |
+          chmod +x terraform.sh
           ./terraform.sh init ${{ matrix.environment }}
 
       - name: Terraform Plan
         id: plan
         run: |
+          chmod +x terraform.sh
           ./terraform.sh plan ${{ matrix.environment }}

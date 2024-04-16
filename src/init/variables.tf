@@ -3,10 +3,16 @@ variable "aws_region" {
   description = "AWS region"
 }
 
-variable "github_repository" {
+variable "github_infra_repository" {
   type        = string
   description = "This github repository"
   default     = "pagopa/interop-infra-att-eservices"
+}
+
+variable "github_code_repository" {
+  type        = string
+  description = "This github repository"
+  default     = "pagopa/interop-att-eservices"
 }
 
 variable "tags" {

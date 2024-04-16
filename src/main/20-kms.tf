@@ -32,3 +32,5 @@ resource "aws_iam_policy" "kms_access" {
   policy      = data.aws_iam_policy_document.kms_access.json
 }
 
+// TODO assign policy to k8s service account
+
