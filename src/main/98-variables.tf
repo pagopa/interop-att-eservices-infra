@@ -95,4 +95,9 @@ variable "fiveXXs_thresholds" {
   }
 }
 
+variable "packages" {
+  type        = list(any)
+  description = "Packages of att-services repository"
+  default     = ["residence-verification"]
+}
 
