@@ -65,9 +65,11 @@ jobs:
       - name: Terraform Init
         id: init
         run: |
+          chmod +x terraform.sh
           ./terraform.sh init ${{ matrix.environment }}
 
       - name: Terraform Plan
         id: plan
         run: |
+          chmod +x terraform.sh
           ./terraform.sh plan ${{ matrix.environment }}
