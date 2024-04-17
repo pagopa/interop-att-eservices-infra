@@ -101,3 +101,18 @@ variable "packages" {
   default     = ["residence-verification"]
 }
 
+variable "reference_branch" {
+  type        = string
+  description = "Reference branch for k8s files"
+}
+
+variable "residence_verification_image_digest" {
+  type        = string
+  description = "Digest for residence_verification docker image"
+}
+
+variable "namespace" {
+  type        = string
+  description = "Namespace for att microservices"
+  default     = "att"
+}

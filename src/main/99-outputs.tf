@@ -30,3 +30,4 @@ output "att_eservices_cluster_name" {
 output "interop_client_key_arn" {
   value = aws_kms_key.interop_client_key.arn
 }
+
