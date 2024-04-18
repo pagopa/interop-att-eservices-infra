@@ -11,8 +11,7 @@ tags = {
 
 # change to "develop"
 reference_branch = "feature/ADA-34"
-residence_verification_image_digest = ""
-
+ingress_hostname = "api.dev.interop.att.eservices.pagopa.it"
 
 helm_aws_load_balancer_version = "1.7.2"
 helm_metrics_server_version = "3.11.0"

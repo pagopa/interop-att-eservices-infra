@@ -106,13 +106,14 @@ variable "reference_branch" {
   description = "Reference branch for k8s files"
 }
 
-variable "residence_verification_image_digest" {
-  type        = string
-  description = "Digest for residence_verification docker image"
-}
-
 variable "namespace" {
   type        = string
   description = "Namespace for att microservices"
   default     = "att"
 }
+
+variable "ingress_hostname" {
+  type        = string
+  description = "FQDN of interop att eservices"
+}
+

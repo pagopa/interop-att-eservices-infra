@@ -31,3 +31,6 @@ output "interop_client_key_arn" {
   value = aws_kms_key.interop_client_key.arn
 }
 
+output "load_balancer_hostname" {
+  value = kubernetes_ingress_v1.eks_ingress.status.0.load_balancer.0.ingress.0.hostname
+}

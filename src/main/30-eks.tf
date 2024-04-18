@@ -84,5 +84,55 @@ resource "kubernetes_manifest" "deployment" {
   )
 }
 
+data "http" "service_manifestfile" {
+  for_each = toset(var.packages)
+  url      = "https://raw.githubusercontent.com/pagopa/interop-att-eservices/${var.reference_branch}/packages/${each.key}/kubernetes/${var.environment}/service.yaml"
+}
 
+resource "kubernetes_manifest" "service" {
+  for_each = data.http.service_manifestfile
+  manifest = yamldecode(
+    join("\n", [
+      for line in split("\n", each.value.body) :
+      format(
+        replace(line, "/{{(${join("|", keys(local.tokens))})}}/", "%s"),
+        [
+          for value in flatten(regexall("{{(${join("|", keys(local.tokens))})}}", line)) :
+          lookup(local.tokens, value)
+        ]...
+      )
+    ])
+  )
+}
 
+# ingress
+resource "kubernetes_ingress_v1" "eks_ingress" {
+  metadata {
+    name      = "interop-att-eservices-ingress"
+    namespace = kubernetes_namespace.namespace.metadata.0.name
+    annotations = {
+      "kubernetes.io/ingress.class"           = "alb"
+      "alb.ingress.kubernetes.io/scheme"      = "internet-facing"
+      "alb.ingress.kubernetes.io/target-type" = "ip"
+    }
+  }
+  spec {
+    rule {
+      host = var.ingress_hostname
+      http {
+        path {
+          path      = "/ar-service-001"
+          path_type = "Prefix"
+          backend {
+            service {
+              name = "interop-att-residence-verification"
+              port {
+                number = 3000
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
