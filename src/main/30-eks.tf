@@ -121,7 +121,7 @@ resource "kubernetes_ingress_v1" "eks_ingress" {
       host = var.ingress_hostname
       http {
         path {
-          path      = "/ar-service-001"
+          path      = "/residence-verification"
           path_type = "Prefix"
           backend {
             service {
