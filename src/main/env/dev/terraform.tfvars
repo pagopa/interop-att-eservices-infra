@@ -10,7 +10,7 @@ tags = {
 }
 
 # change to "develop"
-reference_branch = "feature/ADA-34"
+reference_branch = "develop"
 ingress_hostname = "api.dev.interop.att.eservices.pagopa.it"
 
 helm_aws_load_balancer_version = "1.7.2"
