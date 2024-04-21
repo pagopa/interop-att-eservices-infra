@@ -136,3 +136,70 @@ resource "kubernetes_ingress_v1" "eks_ingress" {
     }
   }
 }
+
+resource "tls_private_key" "mtls" {
+  algorithm = "RSA"
+}
+
+resource "tls_self_signed_cert" "mtls" {
+  private_key_pem = tls_private_key.mtls.private_key_pem
+
+  subject {
+    common_name  = var.ingress_hostname
+    organization = "Custom Org, Inc"
+  }
+
+  validity_period_hours = 1051200
+
+  allowed_uses = [
+    "key_encipherment",
+    "digital_signature",
+    "server_auth",
+  ]
+}
+
+resource "aws_acm_certificate" "mtls" {
+  private_key      = tls_private_key.mtls.private_key_pem
+  certificate_body = tls_self_signed_cert.mtls.cert_pem
+}
+
+
+
+# ingress
+resource "kubernetes_ingress_v1" "eks_mtls_ingress" {
+  metadata {
+    name      = "interop-att-eservices-mtls-ingress"
+    namespace = kubernetes_namespace.namespace.metadata.0.name
+    annotations = {
+      "kubernetes.io/ingress.class"                     = "alb"
+      "alb.ingress.kubernetes.io/scheme"                = "internet-facing"
+      "alb.ingress.kubernetes.io/target-type"           = "ip"
+      "alb.ingress.kubernetes.io/listen-ports"          = "[{\"HTTP\": 80}, {\"HTTPS\": 443}]"
+      "alb.ingress.kubernetes.io/ssl-redirect"          = "443"
+      "alb.ingress.kubernetes.io/healthcheck-port"      = "8080"
+      "alb.ingress.kubernetes.io/mutual-authentication" = "[{\"port\": 80, \"mode\": \"passthrough\"}, {\"port\": 443, \"mode\": \"passthrough\"}]"
+      "alb.ingress.kubernetes.io/backend-protocol"      = "HTTPS"
+      "alb.ingress.kubernetes.io/load-balancer-name"    = "${local.project}-mtalb"
+      "alb.ingress.kubernetes.io/certificate-arn"       = aws_acm_certificate.mtls.arn
+    }
+  }
+  spec {
+    rule {
+      host = "mtls.${var.ingress_hostname}"
+      http {
+        path {
+          path      = "/"
+          path_type = "Prefix"
+          backend {
+            service {
+              name = "mtls-service"
+              port {
+                number = 8443
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,7 +1,7 @@
 # aurora rds
 data "aws_rds_engine_version" "postgresql" {
   engine  = "aurora-postgresql"
-  version = "15.3"
+  version = "15.4"
 }
 
 resource "random_password" "master" {
