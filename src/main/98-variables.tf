@@ -101,3 +101,19 @@ variable "packages" {
   default     = ["residence-verification"]
 }
 
+variable "reference_branch" {
+  type        = string
+  description = "Reference branch for k8s files"
+}
+
+variable "namespace" {
+  type        = string
+  description = "Namespace for att microservices"
+  default     = "att"
+}
+
+variable "ingress_hostname" {
+  type        = string
+  description = "FQDN of interop att eservices"
+}
+
