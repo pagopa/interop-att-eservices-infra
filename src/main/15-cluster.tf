@@ -74,6 +74,14 @@ module "eks" {
     },
   ]
 
+  aws_auth_users = toset([for each in data.aws_iam_group.iam_group.users :
+    {
+      userarn  = each.arn
+      username = each.user_name
+      groups   = ["system:masters"]
+    }
+  ])
+
   node_security_group_additional_rules = {
     ingress_allow_access_from_control_plane = {
       type                          = "ingress"
@@ -91,6 +99,11 @@ module "eks" {
 data "aws_iam_role" "github_action" {
   name = "GitHubActionIACRole"
 }
+
+data "aws_iam_group" "iam_group" {
+  group_name = "SignalHubDevelopers"
+}
+
 
 module "allow_eks_access_iam_policy" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-policy"

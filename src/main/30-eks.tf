@@ -2,6 +2,8 @@ resource "kubernetes_namespace" "namespace" {
   metadata {
     name = var.namespace
   }
+
+  depends_on = [module.eks]
 }
 
 module "service_account_iam_role" {
@@ -36,8 +38,9 @@ locals {
     "KMS_KEYID"                  = aws_kms_key.interop_client_key.id,
     "REDIS_ENDPOINT"             = "redis://${module.redis.elasticache_replication_group_primary_endpoint_address}:${module.redis.elasticache_port}",
     "NAMESPACE"                  = var.namespace,
-    "SERVICEACCOUNT"             = kubernetes_service_account.service_account.metadata.0.name
-    "RESIDENCEVERIFICATIONIMAGE" = format("%s.dkr.ecr.%s.amazonaws.com/%s:%s", data.aws_caller_identity.current.account_id, var.aws_region, "interop-att-eservice-residence-verification", replace(var.reference_branch, "/", "-"))
+    "SERVICEACCOUNT"             = kubernetes_service_account.service_account.metadata.0.name,
+    "RESIDENCEVERIFICATIONIMAGE" = format("%s.dkr.ecr.%s.amazonaws.com/%s:%s", data.aws_caller_identity.current.account_id, var.aws_region, "interop-att-eservice-residence-verification", replace(var.reference_branch, "/", "-")),
+    "DATABASE_ENDPOINT"          = format("postgres://%s:%s@%s:%s/%s", module.aurora_postgresql_v2.cluster_master_username, random_password.master.result, module.aurora_postgresql_v2.cluster_endpoint, module.aurora_postgresql_v2.cluster_port, module.aurora_postgresql_v2.cluster_database_name)
   }
 }
 
@@ -63,6 +66,7 @@ resource "kubernetes_manifest" "configmap" {
   )
 }
 
+# DEPLOYMENT
 data "http" "deployment_manifestfile" {
   for_each = toset(var.packages)
   url      = "https://raw.githubusercontent.com/pagopa/interop-att-eservices/${var.reference_branch}/packages/${each.key}/kubernetes/${var.environment}/deployment.yaml"
@@ -84,6 +88,7 @@ resource "kubernetes_manifest" "deployment" {
   )
 }
 
+# SERVICE
 data "http" "service_manifestfile" {
   for_each = toset(var.packages)
   url      = "https://raw.githubusercontent.com/pagopa/interop-att-eservices/${var.reference_branch}/packages/${each.key}/kubernetes/${var.environment}/service.yaml"
