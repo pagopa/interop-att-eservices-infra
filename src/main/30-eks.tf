@@ -2,6 +2,8 @@ resource "kubernetes_namespace" "namespace" {
   metadata {
     name = var.namespace
   }
+
+  depends_on = [module.eks]
 }
 
 module "service_account_iam_role" {
