@@ -33,6 +33,28 @@ resource "kubernetes_service_account" "service_account" {
   }
 }
 
+resource "tls_private_key" "mtls" {
+  algorithm = "RSA"
+}
+
+resource "tls_self_signed_cert" "mtls" {
+  private_key_pem = tls_private_key.mtls.private_key_pem
+
+  subject {
+    common_name  = var.ingress_hostname
+    organization = "Custom Org, Inc"
+  }
+
+  validity_period_hours = 1051200
+
+  allowed_uses = [
+    "key_encipherment",
+    "digital_signature",
+    "server_auth",
+  ]
+}
+
+
 locals {
   tokens = {
     "KMS_KEYID"                   = aws_kms_key.interop_client_key.id,
@@ -46,6 +68,8 @@ locals {
     "DATABASE_PASSWORD"           = format("%s", random_password.master.result),
     "DATABASE_NAME"               = format("%s", module.aurora_postgresql_v2.cluster_database_name),
     "DATABASE_SCHEMA"             = format("%s", module.aurora_postgresql_v2.cluster_master_username),
+    "HTTPS_CERT_PATH"             = "/app/cert.pem"
+    "HTTPS_KEY_PATH"              = "/app/key.pem"
   }
 }
 
@@ -119,6 +143,27 @@ resource "kubernetes_manifest" "service" {
   )
 }
 
+
+resource "kubernetes_manifest" "https_configmap" {
+  manifest = {
+    "apiVersion" = "v1"
+    "data" = {
+      "cert.pem" = <<-EOT
+      ${tls_self_signed_cert.mtls.cert_pem}
+      EOT
+      "key.pem"  = <<-EOT
+      ${tls_private_key.mtls.private_key_pem}
+      EOT
+    }
+    "kind" = "ConfigMap"
+    "metadata" = {
+      "name"      = "https-configmap"
+      "namespace" = var.namespace
+    }
+  }
+}
+
+
 # ingress
 resource "kubernetes_ingress_v1" "eks_ingress" {
   metadata {
@@ -151,26 +196,6 @@ resource "kubernetes_ingress_v1" "eks_ingress" {
   }
 }
 
-resource "tls_private_key" "mtls" {
-  algorithm = "RSA"
-}
-
-resource "tls_self_signed_cert" "mtls" {
-  private_key_pem = tls_private_key.mtls.private_key_pem
-
-  subject {
-    common_name  = var.ingress_hostname
-    organization = "Custom Org, Inc"
-  }
-
-  validity_period_hours = 1051200
-
-  allowed_uses = [
-    "key_encipherment",
-    "digital_signature",
-    "server_auth",
-  ]
-}
 
 resource "aws_acm_certificate" "mtls" {
   private_key      = tls_private_key.mtls.private_key_pem
@@ -194,7 +219,7 @@ resource "kubernetes_ingress_v1" "eks_mtls_ingress" {
       "alb.ingress.kubernetes.io/healthcheck-protocol"  = "HTTP"
       "alb.ingress.kubernetes.io/healthcheck-path"      = "/fiscalcode-verification/status"
       "alb.ingress.kubernetes.io/mutual-authentication" = "[{\"port\": 80, \"mode\": \"passthrough\"}, {\"port\": 443, \"mode\": \"passthrough\"}]"
-      "alb.ingress.kubernetes.io/backend-protocol"      = "HTTP"
+      "alb.ingress.kubernetes.io/backend-protocol"      = "HTTPS"
       "alb.ingress.kubernetes.io/load-balancer-name"    = "${local.project}-mtalb"
       "alb.ingress.kubernetes.io/certificate-arn"       = aws_acm_certificate.mtls.arn
     }
