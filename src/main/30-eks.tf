@@ -190,9 +190,11 @@ resource "kubernetes_ingress_v1" "eks_mtls_ingress" {
       "alb.ingress.kubernetes.io/target-type"           = "ip"
       "alb.ingress.kubernetes.io/listen-ports"          = "[{\"HTTP\": 80}, {\"HTTPS\": 443}]"
       "alb.ingress.kubernetes.io/ssl-redirect"          = "443"
-      "alb.ingress.kubernetes.io/healthcheck-port"      = "8080"
+      "alb.ingress.kubernetes.io/healthcheck-port"      = "3000"
+      "alb.ingress.kubernetes.io/healthcheck-protocol"  = "HTTP"
+      "alb.ingress.kubernetes.io/healthcheck-path"      = "/fiscalcode-verification/status"
       "alb.ingress.kubernetes.io/mutual-authentication" = "[{\"port\": 80, \"mode\": \"passthrough\"}, {\"port\": 443, \"mode\": \"passthrough\"}]"
-      "alb.ingress.kubernetes.io/backend-protocol"      = "HTTPS"
+      "alb.ingress.kubernetes.io/backend-protocol"      = "HTTP"
       "alb.ingress.kubernetes.io/load-balancer-name"    = "${local.project}-mtalb"
       "alb.ingress.kubernetes.io/certificate-arn"       = aws_acm_certificate.mtls.arn
     }
