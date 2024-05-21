@@ -235,7 +235,7 @@ resource "kubernetes_ingress_v1" "eks_mtls_ingress" {
             service {
               name = "interop-att-fiscalcode-verification"
               port {
-                number = 3000
+                number = 3443
               }
             }
           }
