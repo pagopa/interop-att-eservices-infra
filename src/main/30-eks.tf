@@ -63,6 +63,7 @@ locals {
     "SERVICEACCOUNT"              = kubernetes_service_account.service_account.metadata.0.name,
     "RESIDENCEVERIFICATIONIMAGE"  = format("%s.dkr.ecr.%s.amazonaws.com/%s:%s", data.aws_caller_identity.current.account_id, var.aws_region, "interop-att-eservice-residence-verification", replace(var.reference_branch, "/", "-")),
     "FISCALCODEVERIFICATIONIMAGE" = format("%s.dkr.ecr.%s.amazonaws.com/%s:%s", data.aws_caller_identity.current.account_id, var.aws_region, "interop-att-eservice-fiscalcode-verification", replace(var.reference_branch, "/", "-")),
+    "PIVAVERIFICATIONIMAGE"       = format("%s.dkr.ecr.%s.amazonaws.com/%s:%s", data.aws_caller_identity.current.account_id, var.aws_region, "interop-att-eservice-piva-verification", replace(var.reference_branch, "/", "-")),
     "DATABASE_URL"                = format("%s:%s", module.aurora_postgresql_v2.cluster_endpoint, module.aurora_postgresql_v2.cluster_port)
     "DATABASE_USERNAME"           = format("%s", module.aurora_postgresql_v2.cluster_master_username),
     "DATABASE_PASSWORD"           = format("%s", random_password.master.result),
@@ -93,10 +94,6 @@ resource "kubernetes_manifest" "configmap" {
       )
     ])
   )
-
-  field_manager {
-    force_conflicts = true
-  }
 }
 
 # DEPLOYMENT
@@ -234,6 +231,18 @@ resource "kubernetes_ingress_v1" "eks_mtls_ingress" {
           backend {
             service {
               name = "interop-att-fiscalcode-verification"
+              port {
+                number = 3443
+              }
+            }
+          }
+        }
+        path {
+          path      = "/piva-verification"
+          path_type = "Prefix"
+          backend {
+            service {
+              name = "interop-att-piva-verification"
               port {
                 number = 3443
               }
