@@ -64,6 +64,7 @@ locals {
     "RESIDENCEVERIFICATIONIMAGE"  = format("%s.dkr.ecr.%s.amazonaws.com/%s:%s", data.aws_caller_identity.current.account_id, var.aws_region, "interop-att-eservice-residence-verification", replace(var.reference_branch, "/", "-")),
     "FISCALCODEVERIFICATIONIMAGE" = format("%s.dkr.ecr.%s.amazonaws.com/%s:%s", data.aws_caller_identity.current.account_id, var.aws_region, "interop-att-eservice-fiscalcode-verification", replace(var.reference_branch, "/", "-")),
     "PIVAVERIFICATIONIMAGE"       = format("%s.dkr.ecr.%s.amazonaws.com/%s:%s", data.aws_caller_identity.current.account_id, var.aws_region, "interop-att-eservice-piva-verification", replace(var.reference_branch, "/", "-")),
+    "TRIALSERVICEAPIIMAGE"        = format("%s.dkr.ecr.%s.amazonaws.com/%s:%s", data.aws_caller_identity.current.account_id, var.aws_region, "interop-att-eservice-trial-service-api", replace(var.reference_branch, "/", "-")),
     "DATABASE_URL"                = format("%s:%s", module.aurora_postgresql_v2.cluster_endpoint, module.aurora_postgresql_v2.cluster_port)
     "DATABASE_USERNAME"           = format("%s", module.aurora_postgresql_v2.cluster_master_username),
     "DATABASE_PASSWORD"           = format("%s", random_password.master.result),
@@ -94,6 +95,10 @@ resource "kubernetes_manifest" "configmap" {
       )
     ])
   )
+
+  field_manager {
+    force_conflicts = true
+  }
 }
 
 # DEPLOYMENT
@@ -182,6 +187,18 @@ resource "kubernetes_ingress_v1" "eks_ingress" {
           backend {
             service {
               name = "interop-att-residence-verification"
+              port {
+                number = 3000
+              }
+            }
+          }
+        }
+        path {
+          path      = "/trial"
+          path_type = "Prefix"
+          backend {
+            service {
+              name = "interop-att-trial-service-api"
               port {
                 number = 3000
               }
