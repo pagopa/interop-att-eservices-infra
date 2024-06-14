@@ -66,11 +66,14 @@ locals {
     "PIVAVERIFICATIONIMAGE"           = format("%s.dkr.ecr.%s.amazonaws.com/%s:%s", data.aws_caller_identity.current.account_id, var.aws_region, "interop-att-eservice-piva-verification", replace(var.reference_branch, "/", "-")),
     "TRIALSERVICEAPIIMAGE"            = format("%s.dkr.ecr.%s.amazonaws.com/%s:%s", data.aws_caller_identity.current.account_id, var.aws_region, "interop-att-eservice-trial-service-api", replace(var.reference_branch, "/", "-")),
     "DIGITALADDRESSVERIFICATIONIMAGE" = format("%s.dkr.ecr.%s.amazonaws.com/%s:%s", data.aws_caller_identity.current.account_id, var.aws_region, "interop-att-eservice-digital-address-verification", replace(var.reference_branch, "/", "-")),
-    "DATABASE_URL"                    = format("%s:%s", module.aurora_postgresql_v2.cluster_endpoint, module.aurora_postgresql_v2.cluster_port)
-    "DATABASE_USERNAME"               = format("%s", module.aurora_postgresql_v2.cluster_master_username),
-    "DATABASE_PASSWORD"               = format("%s", random_password.master.result),
+    "DATAMIGRATIONIMAGE"              = format("%s.dkr.ecr.%s.amazonaws.com/%s:%s", data.aws_caller_identity.current.account_id, var.aws_region, "interop-att-eservice-data-migration", replace(var.reference_branch, "/", "-")),
+    "DATABASE_URL"                    = format("%s:%s", module.aurora_postgresql_v2.cluster_endpoint, module.aurora_postgresql_v2.cluster_port),
+    "DATABASE_USERNAME"               = var.database_username,
+    "DATABASE_PASSWORD"               = format("%s", random_password.user_db_password.result),
     "DATABASE_NAME"                   = format("%s", module.aurora_postgresql_v2.cluster_database_name),
-    "DATABASE_SCHEMA"                 = format("%s", module.aurora_postgresql_v2.cluster_master_username),
+    "DATABASE_SCHEMA"                 = var.database_username,
+    "DATABASE_SU_USERNAME"            = format("%s", module.aurora_postgresql_v2.cluster_master_username),
+    "DATABASE_SU_PASSWORD"            = format("%s", random_password.master.result),
     "HTTPS_CERT_PATH"                 = "/app/cert.pem"
     "HTTPS_KEY_PATH"                  = "/app/key.pem"
   }
@@ -96,6 +99,28 @@ resource "kubernetes_manifest" "configmap" {
       )
     ])
   )
+
+  field_manager {
+    force_conflicts = true
+  }
+}
+
+resource "kubernetes_manifest" "flyway_configmap" {
+  manifest = {
+    "apiVersion" = "v1"
+    "data" = {
+      "flyway.conf" = <<-EOT
+      flyway.url=${local.tokens.DATABASE_URL}
+      flyway.user=${local.tokens.DATABASE_SU_USERNAME}
+      flyway.password=${local.tokens.DATABASE_SU_PASSWORD}
+      EOT
+    }
+    "kind" = "ConfigMap"
+    "metadata" = {
+      "name"      = "flyway-configmap"
+      "namespace" = var.namespace
+    }
+  }
 
   field_manager {
     force_conflicts = true

@@ -117,3 +117,8 @@ variable "ingress_hostname" {
   description = "FQDN of interop att eservices"
 }
 
+variable "database_username" {
+  type        = string
+  description = "Database username"
+  default     = "att"
+}
