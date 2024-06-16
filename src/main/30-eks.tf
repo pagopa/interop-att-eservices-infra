@@ -110,7 +110,7 @@ resource "kubernetes_manifest" "flyway_configmap" {
     "apiVersion" = "v1"
     "data" = {
       "flyway.conf" = <<-EOT
-      flyway.url=${local.tokens.DATABASE_URL}
+      flyway.url=jdbc:postgresql://${local.tokens.DATABASE_URL}/${local.tokens.DATABASE_NAME}
       flyway.user=${local.tokens.DATABASE_SU_USERNAME}
       flyway.password=${local.tokens.DATABASE_SU_PASSWORD}
       EOT
