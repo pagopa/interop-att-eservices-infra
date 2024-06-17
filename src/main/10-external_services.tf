@@ -9,6 +9,11 @@ resource "random_password" "master" {
   special = false
 }
 
+resource "random_password" "user_db_password" {
+  length  = 20
+  special = false
+}
+
 module "aurora_postgresql_v2" {
   source  = "terraform-aws-modules/rds-aurora/aws"
   version = "8.5.0"
@@ -52,6 +57,8 @@ module "aurora_postgresql_v2" {
   }
 
   tags = var.tags
+
+  depends_on = [random_password.user_db_password]
 }
 
 module "redis" {
