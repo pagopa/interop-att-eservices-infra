@@ -113,6 +113,7 @@ resource "kubernetes_manifest" "flyway_configmap" {
       flyway.url=jdbc:postgresql://${local.tokens.DATABASE_URL}/${local.tokens.DATABASE_NAME}
       flyway.user=${local.tokens.DATABASE_SU_USERNAME}
       flyway.password=${local.tokens.DATABASE_SU_PASSWORD}
+      flyway.schemas=${local.tokens.DATABASE_SCHEMA}
       EOT
     }
     "kind" = "ConfigMap"
