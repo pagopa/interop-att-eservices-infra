@@ -199,9 +199,10 @@ resource "kubernetes_ingress_v1" "eks_ingress" {
     name      = "interop-att-eservices-ingress"
     namespace = kubernetes_namespace.namespace.metadata.0.name
     annotations = {
-      "kubernetes.io/ingress.class"           = "alb"
-      "alb.ingress.kubernetes.io/scheme"      = "internet-facing"
-      "alb.ingress.kubernetes.io/target-type" = "ip"
+      "kubernetes.io/ingress.class"                  = "alb"
+      "alb.ingress.kubernetes.io/scheme"             = "internet-facing"
+      "alb.ingress.kubernetes.io/target-type"        = "ip"
+      "alb.ingress.kubernetes.io/load-balancer-name" = "${local.project}-alb"
     }
   }
   spec {

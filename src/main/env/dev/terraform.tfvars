@@ -14,6 +14,4 @@ reference_branch = "develop"
 ingress_hostname = "api.dev.interop.att.eservices.pagopa.it"
 
 helm_aws_load_balancer_version = "1.7.2"
-helm_metrics_server_version = "3.11.0"
-helm_prometheus_version = "25.1.0"
-helm_reloader_version = "1.0.44"
+

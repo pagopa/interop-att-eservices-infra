@@ -64,37 +64,6 @@ variable "helm_aws_load_balancer_version" {
   description = "Helm Chart AWS Load balancer controller version"
 }
 
-variable "helm_metrics_server_version" {
-  type        = string
-  description = "Helm Chart Metrics Server version"
-}
-
-variable "helm_prometheus_version" {
-  type        = string
-  description = "Helm Chart Metric Server version"
-}
-
-variable "helm_reloader_version" {
-  type        = string
-  description = "Helm Chart Reloader version"
-}
-
-variable "time_response_thresholds" {
-  default = {
-    period    = "60" //Seconds
-    statistic = "Average"
-    threshold = "30" //Seconds
-  }
-}
-
-variable "fiveXXs_thresholds" {
-  default = {
-    period    = "60" //Seconds
-    statistic = "Average"
-    threshold = "1" //Count
-  }
-}
-
 variable "packages" {
   type        = list(any)
   description = "Packages of att-services repository"
