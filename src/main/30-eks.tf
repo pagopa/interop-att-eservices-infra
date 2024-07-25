@@ -295,7 +295,7 @@ resource "kubernetes_ingress_v1" "eks_mtls_ingress" {
           }
         }
         path {
-          path      = "/piva-verification"
+          path      = "/organizationid-verification"
           path_type = "Prefix"
           backend {
             service {
@@ -308,5 +308,65 @@ resource "kubernetes_ingress_v1" "eks_mtls_ingress" {
         }
       }
     }
+  }
+}
+
+data "kubernetes_ingress_v1" "eks_ingress" {
+  metadata {
+    name      = "interop-att-eservices-ingress"
+    namespace = kubernetes_namespace.namespace.metadata.0.name
+  }
+
+  depends_on = [kubernetes_ingress_v1.eks_ingress]
+}
+
+data "kubernetes_ingress_v1" "eks_mtls_ingress" {
+  metadata {
+    name      = "interop-att-eservices-mtls-ingress"
+    namespace = kubernetes_namespace.namespace.metadata.0.name
+  }
+
+  depends_on = [kubernetes_ingress_v1.eks_mtls_ingress]
+}
+
+locals {
+  lb_name_parts = split("-", split(".", data.kubernetes_ingress_v1.eks_ingress.status.0.load_balancer.0.ingress.0.hostname).0)
+}
+
+data "aws_lb" "eks_ingress" {
+  name = join("-", slice(local.lb_name_parts, 0, length(local.lb_name_parts) - 1))
+}
+
+
+resource "aws_route53_record" "eks_ingress_record" {
+  zone_id = aws_route53_zone.eservices_att_interop_pagopa_it.zone_id
+  name    = "eservices.att.interop.pagopa.it"
+  type    = "A"
+
+  alias {
+    evaluate_target_health = false
+    name                   = data.kubernetes_ingress_v1.eks_ingress.status.0.load_balancer.0.ingress.0.hostname
+    zone_id                = data.aws_lb.eks_ingress.zone_id
+  }
+}
+
+
+locals {
+  lb_name_parts_2 = split("-", split(".", data.kubernetes_ingress_v1.eks_mtls_ingress.status.0.load_balancer.0.ingress.0.hostname).0)
+}
+
+data "aws_lb" "eks_mtls_ingress" {
+  name = join("-", slice(local.lb_name_parts_2, 0, length(local.lb_name_parts_2) - 1))
+}
+
+resource "aws_route53_record" "eks_mtls_ingress_record" {
+  zone_id = aws_route53_zone.eservices_att_interop_pagopa_it.zone_id
+  name    = "mtls.eservices.att.interop.pagopa.it"
+  type    = "A"
+
+  alias {
+    evaluate_target_health = false
+    name                   = data.kubernetes_ingress_v1.eks_mtls_ingress.status.0.load_balancer.0.ingress.0.hostname
+    zone_id                = data.aws_lb.eks_mtls_ingress.zone_id
   }
 }
