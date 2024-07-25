@@ -34,5 +34,11 @@ module "vpc" {
 }
 
 
+resource "aws_route53_zone" "eservices_att_interop_pagopa_it" {
+  name = "eservices.att.interop.pagopa.it"
+}
+
+
+
 
 

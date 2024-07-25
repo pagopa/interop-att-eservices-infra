@@ -11,7 +11,7 @@ tags = {
 
 # change to "develop"
 reference_branch = "develop"
-ingress_hostname = "api.dev.interop.att.eservices.pagopa.it"
+ingress_hostname = "eservices.att.interop.pagopa.it"
 
 helm_aws_load_balancer_version = "1.7.2"
 
