@@ -271,7 +271,7 @@ resource "kubernetes_ingress_v1" "eks_mtls_ingress" {
       "alb.ingress.kubernetes.io/ssl-redirect"          = "443"
       "alb.ingress.kubernetes.io/healthcheck-port"      = "3000"
       "alb.ingress.kubernetes.io/healthcheck-protocol"  = "HTTP"
-      "alb.ingress.kubernetes.io/healthcheck-path"      = "/fiscalcode-verification/status"
+      "alb.ingress.kubernetes.io/healthcheck-path"      = "/subject-id-verification/status"
       "alb.ingress.kubernetes.io/mutual-authentication" = "[{\"port\": 80, \"mode\": \"passthrough\"}, {\"port\": 443, \"mode\": \"passthrough\"}]"
       "alb.ingress.kubernetes.io/backend-protocol"      = "HTTPS"
       "alb.ingress.kubernetes.io/load-balancer-name"    = "${local.project}-mtalb"
@@ -283,7 +283,7 @@ resource "kubernetes_ingress_v1" "eks_mtls_ingress" {
       host = "mtls.${var.ingress_hostname}"
       http {
         path {
-          path      = "/fiscalcode-verification"
+          path      = "/subject-id-verification"
           path_type = "Prefix"
           backend {
             service {
@@ -295,7 +295,7 @@ resource "kubernetes_ingress_v1" "eks_mtls_ingress" {
           }
         }
         path {
-          path      = "/organizationid-verification"
+          path      = "/organization-id-verification"
           path_type = "Prefix"
           backend {
             service {
