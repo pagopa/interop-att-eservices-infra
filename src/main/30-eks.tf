@@ -58,6 +58,7 @@ resource "tls_self_signed_cert" "mtls" {
 locals {
   tokens = {
     "KMS_KEYID"                       = aws_kms_key.interop_client_key.id,
+    "KMS_KEYCHAIN_KEYID"              = aws_kms_key.interop_keychain_key.id,
     "REDIS_ENDPOINT"                  = "redis://${module.redis.elasticache_replication_group_primary_endpoint_address}:${module.redis.elasticache_port}",
     "NAMESPACE"                       = var.namespace,
     "SERVICEACCOUNT"                  = kubernetes_service_account.service_account.metadata.0.name,

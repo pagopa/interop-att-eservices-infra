@@ -5,6 +5,13 @@ resource "aws_kms_key" "interop_client_key" {
   key_usage                = "SIGN_VERIFY"
 }
 
+resource "aws_kms_key" "interop_keychain_key" {
+  description              = "KMS key for Interop KeyChain"
+  deletion_window_in_days  = 7
+  customer_master_key_spec = "RSA_2048"
+  key_usage                = "SIGN_VERIFY"
+}
+
 data "aws_iam_policy_document" "kms_access" {
 
   statement {
@@ -21,7 +28,8 @@ data "aws_iam_policy_document" "kms_access" {
       "kms:VerifyMac"
     ]
     resources = [
-      aws_kms_key.interop_client_key.arn
+      aws_kms_key.interop_client_key.arn,
+      aws_kms_key.interop_keychain_key.arn,
     ]
   }
 }
