@@ -57,25 +57,27 @@ resource "tls_self_signed_cert" "mtls" {
 
 locals {
   tokens = {
-    "KMS_KEYID"                       = aws_kms_key.interop_client_key.id,
-    "REDIS_ENDPOINT"                  = "redis://${module.redis.elasticache_replication_group_primary_endpoint_address}:${module.redis.elasticache_port}",
-    "NAMESPACE"                       = var.namespace,
-    "SERVICEACCOUNT"                  = kubernetes_service_account.service_account.metadata.0.name,
-    "RESIDENCEVERIFICATIONIMAGE"      = format("%s.dkr.ecr.%s.amazonaws.com/%s:%s", data.aws_caller_identity.current.account_id, var.aws_region, "interop-att-eservice-residence-verification", replace(var.reference_branch, "/", "-")),
-    "FISCALCODEVERIFICATIONIMAGE"     = format("%s.dkr.ecr.%s.amazonaws.com/%s:%s", data.aws_caller_identity.current.account_id, var.aws_region, "interop-att-eservice-fiscalcode-verification", replace(var.reference_branch, "/", "-")),
-    "PIVAVERIFICATIONIMAGE"           = format("%s.dkr.ecr.%s.amazonaws.com/%s:%s", data.aws_caller_identity.current.account_id, var.aws_region, "interop-att-eservice-piva-verification", replace(var.reference_branch, "/", "-")),
-    "TRIALSERVICEAPIIMAGE"            = format("%s.dkr.ecr.%s.amazonaws.com/%s:%s", data.aws_caller_identity.current.account_id, var.aws_region, "interop-att-eservice-trial-service-api", replace(var.reference_branch, "/", "-")),
-    "DIGITALADDRESSVERIFICATIONIMAGE" = format("%s.dkr.ecr.%s.amazonaws.com/%s:%s", data.aws_caller_identity.current.account_id, var.aws_region, "interop-att-eservice-digital-address-verification", replace(var.reference_branch, "/", "-")),
-    "DATAMIGRATIONIMAGE"              = format("%s.dkr.ecr.%s.amazonaws.com/%s:%s", data.aws_caller_identity.current.account_id, var.aws_region, "interop-att-eservice-data-migration", replace(var.reference_branch, "/", "-")),
-    "DATABASE_URL"                    = format("%s:%s", module.aurora_postgresql_v2.cluster_endpoint, module.aurora_postgresql_v2.cluster_port),
-    "DATABASE_USERNAME"               = var.database_username,
-    "DATABASE_PASSWORD"               = format("%s", random_password.user_db_password.result),
-    "DATABASE_NAME"                   = format("%s", module.aurora_postgresql_v2.cluster_database_name),
-    "DATABASE_SCHEMA"                 = var.database_username,
-    "DATABASE_SU_USERNAME"            = format("%s", module.aurora_postgresql_v2.cluster_master_username),
-    "DATABASE_SU_PASSWORD"            = format("%s", random_password.master.result),
-    "HTTPS_CERT_PATH"                 = "/app/cert.pem"
-    "HTTPS_KEY_PATH"                  = "/app/key.pem"
+    "KMS_KEYID"                           = aws_kms_key.interop_client_key.id,
+    "KMS_KEYCHAIN_KEYID"                  = aws_kms_key.interop_keychain_key.id,
+    "REDIS_ENDPOINT"                      = "redis://${module.redis.elasticache_replication_group_primary_endpoint_address}:${module.redis.elasticache_port}",
+    "NAMESPACE"                           = var.namespace,
+    "SERVICEACCOUNT"                      = kubernetes_service_account.service_account.metadata.0.name,
+    "RESIDENCEVERIFICATIONIMAGE"          = format("%s.dkr.ecr.%s.amazonaws.com/%s:%s", data.aws_caller_identity.current.account_id, var.aws_region, "interop-att-eservice-residence-verification", replace(var.reference_branch, "/", "-")),
+    "FISCALCODEVERIFICATIONIMAGE"         = format("%s.dkr.ecr.%s.amazonaws.com/%s:%s", data.aws_caller_identity.current.account_id, var.aws_region, "interop-att-eservice-fiscalcode-verification", replace(var.reference_branch, "/", "-")),
+    "PIVAVERIFICATIONIMAGE"               = format("%s.dkr.ecr.%s.amazonaws.com/%s:%s", data.aws_caller_identity.current.account_id, var.aws_region, "interop-att-eservice-piva-verification", replace(var.reference_branch, "/", "-")),
+    "TRIALSERVICEAPIIMAGE"                = format("%s.dkr.ecr.%s.amazonaws.com/%s:%s", data.aws_caller_identity.current.account_id, var.aws_region, "interop-att-eservice-trial-service-api", replace(var.reference_branch, "/", "-")),
+    "DIGITALADDRESSVERIFICATIONIMAGE"     = format("%s.dkr.ecr.%s.amazonaws.com/%s:%s", data.aws_caller_identity.current.account_id, var.aws_region, "interop-att-eservice-digital-address-verification", replace(var.reference_branch, "/", "-")),
+    "DATAMIGRATIONIMAGE"                  = format("%s.dkr.ecr.%s.amazonaws.com/%s:%s", data.aws_caller_identity.current.account_id, var.aws_region, "interop-att-eservice-data-migration", replace(var.reference_branch, "/", "-")),
+    "DATABASE_URL"                        = format("%s:%s", module.aurora_postgresql_v2.cluster_endpoint, module.aurora_postgresql_v2.cluster_port),
+    "DATABASE_USERNAME"                   = var.database_username,
+    "DATABASE_PASSWORD"                   = format("%s", random_password.user_db_password.result),
+    "DATABASE_NAME"                       = format("%s", module.aurora_postgresql_v2.cluster_database_name),
+    "DATABASE_SCHEMA"                     = var.database_username,
+    "DATABASE_SU_USERNAME"                = format("%s", module.aurora_postgresql_v2.cluster_master_username),
+    "DATABASE_SU_PASSWORD"                = format("%s", random_password.master.result),
+    "HTTPS_CERT_PATH"                     = "/app/cert.pem"
+    "HTTPS_KEY_PATH"                      = "/app/key.pem"
+    "KMS_MAX_ACQUISITION_TIMEOUT_SECONDS" = "60"
   }
 }
 
