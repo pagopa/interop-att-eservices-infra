@@ -67,7 +67,9 @@ locals {
     "PIVAVERIFICATIONIMAGE"               = format("%s.dkr.ecr.%s.amazonaws.com/%s:%s", data.aws_caller_identity.current.account_id, var.aws_region, "interop-att-eservice-piva-verification", replace(var.reference_branch, "/", "-")),
     "TRIALSERVICEAPIIMAGE"                = format("%s.dkr.ecr.%s.amazonaws.com/%s:%s", data.aws_caller_identity.current.account_id, var.aws_region, "interop-att-eservice-trial-service-api", replace(var.reference_branch, "/", "-")),
     "DIGITALADDRESSVERIFICATIONIMAGE"     = format("%s.dkr.ecr.%s.amazonaws.com/%s:%s", data.aws_caller_identity.current.account_id, var.aws_region, "interop-att-eservice-digital-address-verification", replace(var.reference_branch, "/", "-")),
+    "KEYCHAINMOCKIMAGE"                   = format("%s.dkr.ecr.%s.amazonaws.com/%s:%s", data.aws_caller_identity.current.account_id, var.aws_region, "interop-att-eservice-keychain-mock", replace(var.reference_branch, "/", "-")),
     "DATAMIGRATIONIMAGE"                  = format("%s.dkr.ecr.%s.amazonaws.com/%s:%s", data.aws_caller_identity.current.account_id, var.aws_region, "interop-att-eservice-data-migration", replace(var.reference_branch, "/", "-")),
+    "FAMILYSTATUSIMAGE"                   = format("%s.dkr.ecr.%s.amazonaws.com/%s:%s", data.aws_caller_identity.current.account_id, var.aws_region, "interop-att-eservice-family-status", replace(var.reference_branch, "/", "-")),
     "DATABASE_URL"                        = format("%s:%s", module.aurora_postgresql_v2.cluster_endpoint, module.aurora_postgresql_v2.cluster_port),
     "DATABASE_USERNAME"                   = var.database_username,
     "DATABASE_PASSWORD"                   = format("%s", random_password.user_db_password.result),
@@ -241,6 +243,30 @@ resource "kubernetes_ingress_v1" "eks_ingress" {
           backend {
             service {
               name = "interop-att-digital-address-verification"
+              port {
+                number = 3000
+              }
+            }
+          }
+        }
+        path {
+          path      = "/keychain-mock"
+          path_type = "Prefix"
+          backend {
+            service {
+              name = "interop-att-keychain-mock"
+              port {
+                number = 3000
+              }
+            }
+          }
+        }
+        path {
+          path      = "/family-status"
+          path_type = "Prefix"
+          backend {
+            service {
+              name = "interop-att-family-status"
               port {
                 number = 3000
               }

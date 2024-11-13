@@ -67,7 +67,7 @@ variable "helm_aws_load_balancer_version" {
 variable "packages" {
   type        = list(any)
   description = "Packages of att-services repository"
-  default     = ["residence-verification", "fiscalcode-verification", "piva-verification", "trial-service-api", "digital-address-verification"]
+  default     = ["residence-verification", "fiscalcode-verification", "piva-verification", "trial-service-api", "digital-address-verification", "keychain-mock", "family-status"]
 }
 
 variable "reference_branch" {
